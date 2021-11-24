@@ -1,0 +1,22 @@
+n=int(input("How many numbers I want to get? -->"))
+
+print("These are my numbers:",end=' ')
+
+k = 1
+primeNumbers = []
+while len(primeNumbers) < n:
+    for i in range(1, n + 1):
+        c = 0
+    for j in range(1, k + 1):
+        a = k % j
+        if a == 0:
+            c = c + 1
+
+    if c == 2:
+        primeNumbers.append(k)
+    else:
+        i = i - 1
+
+    k = k + 1
+
+print(primeNumbers,end=' ')
