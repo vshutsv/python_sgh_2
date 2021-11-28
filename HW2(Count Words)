@@ -1,0 +1,14 @@
+l_result = []
+l_checked = []
+with open("/Users/viktoryiashutsko/Desktop/California.txt", 'r') as my_file:
+    file = my_file.readlines()
+    for line in file:
+        for word in line.split():
+            l_result.append(word.lower().replace("'", "").replace("(", "").replace(')', '').replace(',', '').strip())
+# code counts how many times the word has appeared and adds an element to the list of checked ones
+# if word is in check-list the loop skips it
+for i in range(0, len(l_result)):
+    if l_result[i] in l_checked[:i]:
+        continue
+    l_checked.append(l_result[i])
+    print('"%s" appeared %i times' % (l_result[i], l_result.count(l_result[i])))
