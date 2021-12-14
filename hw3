@@ -1,0 +1,43 @@
+import os
+import json
+
+path = "/Users/annakrupiak/Desktop/Python/python_2021/stocks"
+os.chdir(path)
+
+file_1 = {}
+i = 0
+dictionary = os.listdir(path)
+for k in dictionary:
+    file_1[i] = k
+    i += 1;
+
+for l in file_1:
+    file = file_1[l]
+
+    l_1 = []
+    with open(file, 'r') as m_file:
+        lines = m_file.readlines()
+        for line in lines:
+            l_1.append(line.replace("'", "").replace("\n", "").split(','))
+
+    l_2 = [["Date,", "Open,", "High,", "Low,", "Close,", "AdjClose,", "Volume,", "Change\n"]]
+
+    s=1
+    while s < len(l_1):
+        l_2.append([l_1[s][0]+',',
+                     (l_1[s][1])+',',
+                     (l_1[s][2])+',',
+                     (l_1[s][3])+',',
+                     (l_1[s][4])+',',
+                     (l_1[s][5])+',',
+                     (l_1[s][6])+',',
+                     str(float(l_1[s][4]) - float(l_1[s][1]) / float(l_1[s][1]))+'\n'])
+        s= s+1;
+
+    file_2=   "changes_" + file
+    z=0
+
+    with open(file_2, 'w') as my_file:
+        while z < len(l_2):
+            rows = my_file.writelines(l_2[z])
+            z=z+1
