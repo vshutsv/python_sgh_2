@@ -1,0 +1,244 @@
+class Customer:
+    last_id=0
+    def __init__(self, firstname, lastname):
+        self.firstname = firstname
+        self.lastname = lastname
+        Customer.last_id += 1
+        self.id = Customer.last_id
+
+    def __repr__(self):
+        return 'Customer[{},{},{}]'.format(self.id, self.firstname, self.lastname)
+
+
+class Account:
+    last_id = 0
+    def __init__(self, customer):
+        self.customer = customer
+        Account.last_id += 1
+        self.id = Account.last_id
+        self._balance = 0
+
+    def deposit(self, amount):
+        if amount <= 0:
+            raise IncorrectAmountException("Incorrect amount", self._balance)
+        self._balance += amount
+
+    def charge(self, amount):
+        if amount < 0:
+            raise IncorrectAmountException("Incorrect amount", self._balance)
+        if amount > self._balance:
+            raise InsufficientBalanceException("Insufficient Balance, current balance is: " + str(self._balance), self._balance)
+            #raise InsufficientBalanceException("Insufficient Balance, current balance is: " + self._balance)
+        self._balance -= amount
+
+    def __repr__(self):
+        return '{}[{},{},{}]'.format(self.__class__.__name__, self.id, self.customer.lastname, self._balance)
+
+class SavingsAccount(Account):
+    def calc_interest(self):
+        interest = self._balance*0.01
+        self._balance += interest
+
+class CheckingAccount(Account):
+    pass
+
+class Bank:
+    def __init__(self):
+        self.account_list = []
+        self.customer_list = []
+
+    def create_customer(self, firstname, lastname):
+        c = Customer(firstname, lastname)
+        self.customer_list.append(c)
+        return c
+
+    def create_account(self, customer, type_of_account):
+        if type_of_account == 'Checking':
+            ch = CheckingAccount(customer)
+            self.account_list.append(ch)
+            return ch
+        elif type_of_account == 'Savings':
+            s = SavingsAccount(customer)
+            self.account_list.append(s)
+            return s
+        else:
+            raise IncorrectAccountType('Choose Checking or Savings')
+
+    def transfer(self, from_acc_id, to_acc_id, amount):
+        for i in range(len(self.account_list)):
+            if self.account_list[i].id == from_acc_id:
+                from_account_position = i
+                break
+        else:
+            raise WrongAccountID('Wrong account id (charge)')
+
+        for k in range(len(self.account_list)):
+            if self.account_list[k].id == to_acc_id:
+                to_account_position = k
+                break
+        else:
+            raise WrongAccountID('Wrong account id (deposit)')
+
+        self.account_list[from_account_position].charge(amount)
+        self.account_list[to_account_position].deposit(amount)
+        return print('Transfer completed')
+
+
+    def __repr__(self):
+        return 'Bank[{},{}]'.format(self.customer_list, self.account_list)
+
+
+class BankException(Exception):
+    def __init__(self, msg, balance=-100):
+        super().__init__(msg)
+        self.balance = balance
+
+class IncorrectAmountException(BankException):
+    pass
+
+class InsufficientBalanceException(BankException):
+    pass
+
+class IncorrectAccountType(Exception):
+    pass
+
+class WrongAccountID(Exception):
+    pass
+
+
+bank = Bank()
+
+c1 = bank.create_customer('Anna', 'Smith')
+print(c1)
+c2 = bank.create_customer('John', 'Brown')
+print(c2)
+print('-------')
+print(bank)
+print('-------')
+
+
+# Implementation
+try:
+    a1 = bank.create_account(c1, "Checking")
+    a2 = bank.create_account(c1, "Savings")
+except IncorrectAccountType as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Account for customer C1-------')
+
+try:
+    a3 = bank.create_account(c2, "Checking")
+    a4 = bank.create_account(c2, "Savings")
+except IncorrectAccountType as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Account for customer C2-------')
+
+
+
+
+# Making deposits
+a1.deposit(200)
+a2.deposit(50)
+a3.deposit(350)
+a4.deposit(100)
+
+# Making deposit into saving accounts + calculating interest
+print(a2)
+a2.calc_interest()
+print(a2)
+print('-------a2 interest-------')
+print(a4)
+a4.calc_interest()
+print(a4)
+print('-------a4 interest-------')
+
+# Corect charging
+try:
+    a1.charge(50)
+    print(a1)
+    print('-------Corect charging-------')
+except IncorrectAmountException as iae:
+    print('Incorrect.. Exception raised: ' + str(iae))
+    print('-------Corect charging-------')
+except InsufficientBalanceException as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Corect charging-------')
+
+# Incorrect charging (amount)
+try:
+    a3.charge(1000)
+    print(a3)
+    print('-------Incorrect charging-------')
+except IncorrectAmountException as iae:
+    print('Incorrect.. Exception raised: ' + str(iae))
+    print('-------Incorrect charging-------')
+except InsufficientBalanceException as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Incorrect charging-------')
+
+
+# Correct transfer
+try:
+    bank.transfer(3, 1, 50)
+    print(a3)
+    print(a1)
+    print('-------Correct transfer-------')
+except IncorrectAmountException as iae:
+    print('Incorrect.. Exception raised: ' + str(iae))
+    print('-------Correct transfer-------')
+except InsufficientBalanceException as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Correct transfer-------')
+except WrongAccountID as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Correct transfer-------')
+
+
+# Incorrect Amount
+try:
+    bank.transfer(3, 1, -100)
+    print(a3)
+    print(a1)
+    print('-------Incorrect Amount-------')
+except IncorrectAmountException as iae:
+    print('Incorrect.. Exception raised: ' + str(iae))
+    print('-------Incorrect Amount-------')
+except InsufficientBalanceException as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Incorrect Amount-------')
+except WrongAccountID as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Incorrect Amount-------')
+
+
+# Wrong account id
+try:
+    bank.transfer(6, 2, 100)
+    print(a1)
+    print(a3)
+    print('-------Wrong ID-------')
+except IncorrectAmountException as iae:
+    print('Incorrect.. Exception raised: ' + str(iae))
+    print('-------Wrong ID-------')
+except InsufficientBalanceException as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Wrong ID-------')
+except WrongAccountID as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Wrong ID-------')
+
+
+# Insufficient Balance
+try:
+    bank.transfer(2, 1, 1000)
+    print(a2)
+    print(a1)
+    print('-------Insufficient Balance-------')
+except IncorrectAmountException as iae:
+    print('Incorrect.. Exception raised: ' + str(iae))
+    print('-------Insufficient Balance-------')
+except InsufficientBalanceException as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Insufficient Balance-------')
+except WrongAccountID as iae:
+    print('Exception raised: ' + str(iae))
+    print('-------Insufficient Balance-------')
