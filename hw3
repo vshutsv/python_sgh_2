@@ -1,7 +1,7 @@
 import os
 import json
 
-path = "/Users/annakrupiak/Desktop/Python/python_2021/stocks"
+path = "/Users/viktoryiashutsko/Desktop/Python/python_2021/stocks"
 os.chdir(path)
 
 file_1 = {}
